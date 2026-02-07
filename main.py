@@ -27,16 +27,27 @@ class SentimentPipeline:
         self.category_classifier = CategoryClassifier()
         self.topic_modeler = TopicModeler(num_topics=self.num_topics)
 
-    def run_complete_pipeline(self):
+    def run_complete_pipeline(self, use_csv=False, csv_path=None, text_col=None, sentiment_col=None, cat_col=None):
         """
         Runs the end-to-end NLP pipeline.
         This includes loading data, preprocessing, feature extraction, training, and analysis.
+        
+        :param use_csv: If True, loads data from a CSV file. Otherwise, generates synthetic data.
+        :param csv_path: Path to the CSV file.
+        :param text_col: The name of the column containing the review text.
+        :param sentiment_col: The name of the column containing the sentiment.
+        :param cat_col: The name of the column containing the category (optional).
         """
         print("Starting NLP Pipeline...")
 
         # Step 1: Load and explore the data
-        print("\n[STEP 1] Loading and generating synthetic data...")
-        reviews_df = self.data_loader.generate_synthetic_reviews()
+        if use_csv:
+            print(f"\n[STEP 1] Loading data from {csv_path}...")
+            reviews_df = self.data_loader.load_from_csv(csv_path, text_col, sentiment_col, cat_col)
+        else:
+            print("\n[STEP 1] Loading and generating synthetic data...")
+            reviews_df = self.data_loader.generate_synthetic_reviews()
+        
         self.data_loader.perform_eda(reviews_df)
 
         # Step 2: Preprocess the review text
@@ -140,9 +151,23 @@ class SentimentPipeline:
 
 
 if __name__ == '__main__':
+    # To run with synthetic data:
     pipeline = SentimentPipeline(num_reviews=2000, num_categories=4, num_topics=4)
     pipeline.run_complete_pipeline()
     pipeline.save_models()
+
+    # # To run with data from a CSV file, uncomment the following lines:
+    # # Make sure to replace 'your_dataset.csv' and the column names with your actual data.
+    # pipeline_csv = SentimentPipeline()
+    # pipeline_csv.run_complete_pipeline(
+    #     use_csv=True,
+    #     csv_path='your_dataset.csv',
+    #     text_col='review_text_column_name',
+    #     sentiment_col='sentiment_column_name',
+    #     cat_col='category_column_name' # Optional
+    # )
+    # pipeline_csv.save_models()
+
 
     # Example of loading models and predicting
     print("\n" + "="*30)
