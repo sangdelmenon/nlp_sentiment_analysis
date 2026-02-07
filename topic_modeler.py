@@ -1,10 +1,10 @@
 from gensim import corpora, models
-from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import os
+import config
 
 class TopicModeler:
-    def __init__(self, num_topics=15):
+    def __init__(self, num_topics=config.NUM_TOPICS):
         self.num_topics = num_topics
         self.lda_model = None
         self.dictionary = None
@@ -16,12 +16,12 @@ class TopicModeler:
         self.dictionary = corpora.Dictionary(tokenized_texts)
         corpus = [self.dictionary.doc2bow(text) for text in tokenized_texts]
         
-        self.lda_model = models.LdaModel(corpus, num_topics=self.num_topics, id2word=self.dictionary, passes=10, random_state=42)
+        self.lda_model = models.LdaModel(corpus, num_topics=self.num_topics, id2word=self.dictionary, passes=config.LDA_PASSES, random_state=42)
         
         print(f"LDA Model trained with {self.num_topics} topics.")
         return self.lda_model
 
-    def get_topic_words(self, topic_id, topn=10):
+    def get_topic_words(self, topic_id, topn=config.NUM_WORDS):
         """
         Returns the top words for a given topic.
         """
@@ -30,20 +30,20 @@ class TopicModeler:
         
         return self.lda_model.show_topic(topic_id, topn=topn)
 
-    def save_model(self, model_path="models/lda_model.gensim", dictionary_path="models/lda_dictionary.gensim"):
+    def save_model(self, model_path=config.LDA_MODEL_PATH, dictionary_path=config.LDA_DICTIONARY_PATH):
         """Saves the LDA model and dictionary."""
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         self.lda_model.save(model_path)
         self.dictionary.save(dictionary_path)
         print(f"LDA model saved to {model_path} and {dictionary_path}")
 
-    def load_model(self, model_path="models/lda_model.gensim", dictionary_path="models/lda_dictionary.gensim"):
+    def load_model(self, model_path=config.LDA_MODEL_PATH, dictionary_path=config.LDA_DICTIONARY_PATH):
         """Loads the LDA model and dictionary."""
         self.lda_model = models.LdaModel.load(model_path)
         self.dictionary = corpora.Dictionary.load(dictionary_path)
         print(f"LDA model loaded from {model_path} and {dictionary_path}")
 
-    def visualize_topics(self, num_words=10):
+    def visualize_topics(self, num_words=config.NUM_WORDS):
         """
         Generates bar charts for each topic's word distribution.
         """

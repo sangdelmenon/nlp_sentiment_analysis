@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
+import config
 
 class ReviewDataLoader:
-    def __init__(self, num_reviews=1000, num_categories=10):
+    def __init__(self, num_reviews=config.NUM_REVIEWS, num_categories=config.NUM_CATEGORIES):
         self.num_reviews = num_reviews
         self.num_categories = num_categories
         self.categories = [f'Category_{i+1}' for i in range(num_categories)]

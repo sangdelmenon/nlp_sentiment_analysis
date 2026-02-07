@@ -4,6 +4,7 @@ from sklearn.metrics import f1_score, classification_report
 from sklearn.preprocessing import LabelEncoder
 import joblib
 import os
+import config
 
 class CategoryClassifier:
     def __init__(self):

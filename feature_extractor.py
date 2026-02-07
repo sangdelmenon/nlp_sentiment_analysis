@@ -3,12 +3,13 @@ from gensim.models import Word2Vec
 from transformers import BertTokenizer, BertModel
 import torch
 import numpy as np
+import config
 
 class FeatureExtractor:
-    def __init__(self, max_features=5000, embedding_dim=300):
+    def __init__(self, max_features=config.MAX_FEATURES, embedding_dim=config.EMBEDDING_DIM):
         self.max_features = max_features
         self.embedding_dim = embedding_dim
-        self.tfidf_vectorizer = TfidfVectorizer(max_features=self.max_features, ngram_range=(1, 2))
+        self.tfidf_vectorizer = TfidfVectorizer(max_features=self.max_features, ngram_range=config.NGRAM_RANGE)
         self.word2vec_model = None
         self.bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         self.bert_model = BertModel.from_pretrained('bert-base-uncased')

@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score
 import nltk
 import joblib
 import os
+import config
 
 # Download VADER lexicon
 try:
@@ -16,7 +17,7 @@ except LookupError:
 class SentimentAnalyzer:
     def __init__(self):
         self.vader_analyzer = SentimentIntensityAnalyzer()
-        self.ml_model = LogisticRegression(max_iter=1000)
+        self.ml_model = LogisticRegression(max_iter=config.MAX_ITER)
 
     def vader_sentiment(self, text):
         """

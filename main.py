@@ -1,3 +1,4 @@
+import config
 from data_loader import ReviewDataLoader
 from text_processor import TextPreprocessor
 from feature_extractor import FeatureExtractor
@@ -11,7 +12,7 @@ class SentimentPipeline:
     """
     Orchestrates the entire NLP pipeline, from data loading to model training and analysis.
     """
-    def __init__(self, num_reviews=1000, num_categories=5, num_topics=5):
+    def __init__(self, num_reviews=config.NUM_REVIEWS, num_categories=config.NUM_CATEGORIES, num_topics=config.NUM_TOPICS):
         """
         Initializes the pipeline with the specified parameters.
         """
@@ -22,7 +23,7 @@ class SentimentPipeline:
         # Initialize each component of the NLP pipeline
         self.data_loader = ReviewDataLoader(num_reviews=self.num_reviews, num_categories=self.num_categories)
         self.text_preprocessor = TextPreprocessor()
-        self.feature_extractor = FeatureExtractor()
+        self.feature_extractor = FeatureExtractor(max_features=config.MAX_FEATURES, embedding_dim=config.EMBEDDING_DIM)
         self.sentiment_analyzer = SentimentAnalyzer()
         self.category_classifier = CategoryClassifier()
         self.topic_modeler = TopicModeler(num_topics=self.num_topics)
@@ -88,7 +89,7 @@ class SentimentPipeline:
         print("\n--- Training Topic Model (LDA) ---")
         self.topic_modeler.train_lda(sentences)
         for i in range(self.num_topics):
-            print(f"Topic {i+1}: {self.topic_modeler.get_topic_words(i, topn=5)}")
+            print(f"Topic {i+1}: {self.topic_modeler.get_topic_words(i, topn=config.NUM_WORDS)}")
 
         # Step 5: Analyze a sample review with the trained models
         print("\n[STEP 5] Analyzing a new sample review...")
@@ -132,27 +133,27 @@ class SentimentPipeline:
     def save_models(self):
         """Saves all trained models."""
         print("\n[STEP 6] Saving all models...")
-        self.sentiment_analyzer.save_model()
-        self.category_classifier.save_model()
-        self.topic_modeler.save_model()
+        self.sentiment_analyzer.save_model(config.SENTIMENT_MODEL_PATH)
+        self.category_classifier.save_model(config.CATEGORY_MODEL_PATH, config.CATEGORY_ENCODER_PATH)
+        self.topic_modeler.save_model(config.LDA_MODEL_PATH, config.LDA_DICTIONARY_PATH)
         # Also save the tfidf vectorizer
-        joblib.dump(self.feature_extractor.tfidf_vectorizer, "models/tfidf_vectorizer.joblib")
+        joblib.dump(self.feature_extractor.tfidf_vectorizer, config.TFIDF_VECTORIZER_PATH)
         print("All models saved in the 'models' directory.")
 
     def load_models(self):
         """Loads all trained models."""
         print("\nLoading all models...")
-        self.sentiment_analyzer.load_model()
-        self.category_classifier.load_model()
-        self.topic_modeler.load_model()
+        self.sentiment_analyzer.load_model(config.SENTIMENT_MODEL_PATH)
+        self.category_classifier.load_model(config.CATEGORY_MODEL_PATH, config.CATEGORY_ENCODER_PATH)
+        self.topic_modeler.load_model(config.LDA_MODEL_PATH, config.LDA_DICTIONARY_PATH)
         # Also load the tfidf vectorizer
-        self.feature_extractor.tfidf_vectorizer = joblib.load("models/tfidf_vectorizer.joblib")
+        self.feature_extractor.tfidf_vectorizer = joblib.load(config.TFIDF_VECTORIZER_PATH)
         print("All models loaded.")
 
 
 if __name__ == '__main__':
     # To run with synthetic data:
-    pipeline = SentimentPipeline(num_reviews=2000, num_categories=4, num_topics=4)
+    pipeline = SentimentPipeline()
     pipeline.run_complete_pipeline()
     pipeline.save_models()
 
