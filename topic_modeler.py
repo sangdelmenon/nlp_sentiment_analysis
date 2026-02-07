@@ -31,30 +31,31 @@ class TopicModeler:
 
     def visualize_topics(self, num_words=10):
         """
-        Generates word clouds for each topic.
+        Generates bar charts for each topic's word distribution.
         """
         if self.lda_model is None:
             raise Exception("LDA model not trained yet.")
         
-        cols = 3
+        cols = 2
         rows = (self.num_topics + cols - 1) // cols
-        fig, axes = plt.subplots(rows, cols, figsize=(15, 4 * rows))
+        fig, axes = plt.subplots(rows, cols, figsize=(12, 3 * rows), sharex=True)
         axes = axes.flatten()
 
         for i in range(self.num_topics):
-            topic_words = dict(self.lda_model.show_topic(i, num_words=20))
-            wordcloud = WordCloud(width=400, height=200, background_color='white').generate_from_frequencies(topic_words)
+            topic_words = self.lda_model.show_topic(i, topn=num_words)
+            words, probabilities = zip(*topic_words)
             
             ax = axes[i]
-            ax.imshow(wordcloud, interpolation='bilinear')
+            ax.barh(words, probabilities)
             ax.set_title(f'Topic {i+1}')
-            ax.axis('off')
+            ax.invert_yaxis()
 
         # Hide any unused subplots
         for j in range(self.num_topics, len(axes)):
             axes[j].axis('off')
 
-        plt.tight_layout()
+        fig.suptitle("Top Words per Topic", fontsize=16)
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
         plt.show()
 
 if __name__ == '__main__':
@@ -82,5 +83,5 @@ if __name__ == '__main__':
     # This will open a plot window
     # topic_modeler.visualize_topics()
     print("[INFO] Visualization is commented out to prevent blocking script execution in a non-interactive environment.")
-    print("[INFO] Uncomment the line `topic_modeler.visualize_topics()` to see the word clouds.")
+    print("[INFO] Uncomment the line `topic_modeler.visualize_topics()` to see the bar charts.")
 
