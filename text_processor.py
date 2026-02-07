@@ -62,17 +62,3 @@ class TextPreprocessor:
         tokens = self.lemmatize(tokens)
         return ' '.join(tokens)
 
-if __name__ == '__main__':
-    preprocessor = TextPreprocessor()
-    sample_text = "This product is AMAZING!!! Works great :) I will NOT buy this again."
-    processed_text = preprocessor.process_pipeline(sample_text)
-    
-    print(f"Original Text: '{sample_text}'")
-    print(f"Processed Text: '{processed_text}'")
-
-    # Example from instructions
-    instruction_example = "This product is AMAZING!!! Works great :)"
-    processed_instruction_example = preprocessor.process_pipeline(instruction_example)
-    print(f"\nInstruction Example: '{instruction_example}'")
-    print(f"Processed Instruction Example: '{processed_instruction_example}'")
-

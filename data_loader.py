@@ -33,9 +33,4 @@ class ReviewDataLoader:
         print(df['category'].value_counts())
         print("="*30)
 
-if __name__ == '__main__':
-    data_loader = ReviewDataLoader(num_reviews=1000)
-    reviews_df = data_loader.generate_synthetic_reviews()
-    data_loader.perform_eda(reviews_df)
-    print("\nSample of generated data:")
-    print(reviews_df.head())
+

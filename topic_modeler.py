@@ -72,30 +72,3 @@ class TopicModeler:
         plt.tight_layout(rect=[0, 0, 1, 0.96])
         plt.show()
 
-if __name__ == '__main__':
-    from data_loader import ReviewDataLoader
-    from text_processor import TextPreprocessor
-
-    # 1. Load and preprocess data
-    data_loader = ReviewDataLoader(num_reviews=500)
-    reviews_df = data_loader.generate_synthetic_reviews()
-    
-    preprocessor = TextPreprocessor()
-    reviews_df['processed_text'] = reviews_df['review_text'].apply(preprocessor.process_pipeline)
-    tokenized_texts = [text.split() for text in reviews_df['processed_text']]
-
-    # 2. Topic Modeling
-    topic_modeler = TopicModeler(num_topics=5)
-    topic_modeler.train_lda(tokenized_texts)
-
-    # 3. Show top words for a topic
-    print("\nTop words for Topic 1:")
-    print(topic_modeler.get_topic_words(0))
-
-    # 4. Visualize topics
-    print("\nGenerating topic visualizations...")
-    # This will open a plot window
-    # topic_modeler.visualize_topics()
-    print("[INFO] Visualization is commented out to prevent blocking script execution in a non-interactive environment.")
-    print("[INFO] Uncomment the line `topic_modeler.visualize_topics()` to see the bar charts.")
-

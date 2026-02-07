@@ -49,34 +49,3 @@ class CategoryClassifier:
         self.label_encoder = joblib.load(encoder_path)
         print(f"Category model loaded from {model_path} and {encoder_path}")
 
-if __name__ == '__main__':
-    from data_loader import ReviewDataLoader
-    from text_processor import TextPreprocessor
-    from feature_extractor import FeatureExtractor
-    
-    # 1. Load and preprocess data
-    data_loader = ReviewDataLoader(num_reviews=1000, num_categories=5)
-    reviews_df = data_loader.generate_synthetic_reviews()
-    
-    preprocessor = TextPreprocessor()
-    reviews_df['processed_text'] = reviews_df['review_text'].apply(preprocessor.process_pipeline)
-    
-    # 2. Feature Extraction
-    feature_extractor = FeatureExtractor()
-    tfidf_matrix = feature_extractor.extract_tfidf(reviews_df['processed_text'])
-    
-    # 3. Category Classification
-    category_classifier = CategoryClassifier()
-    
-    X = tfidf_matrix
-    y = reviews_df['category']
-    
-    category_classifier.train_classifier(X, y)
-    
-    # Predict on a sample
-    sample_text = "This is a review about a phone camera"
-    processed_sample = preprocessor.process_pipeline(sample_text)
-    sample_features = feature_extractor.tfidf_vectorizer.transform([processed_sample])
-    
-    prediction = category_classifier.predict_category(sample_features)
-    print(f"\nPrediction for '{sample_text}': {prediction[0]}")
