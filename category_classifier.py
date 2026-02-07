@@ -1,0 +1,67 @@
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, classification_report
+from sklearn.preprocessing import LabelEncoder
+
+class CategoryClassifier:
+    def __init__(self):
+        self.model = MultinomialNB()
+        self.label_encoder = LabelEncoder()
+
+    def train_classifier(self, X, y):
+        """
+        Trains a classifier to predict product categories.
+        """
+        # Encode string labels to numbers
+        y_encoded = self.label_encoder.fit_transform(y)
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2, random_state=42)
+        
+        self.model.fit(X_train, y_train)
+        
+        y_pred = self.model.predict(X_test)
+        
+        f1 = f1_score(y_test, y_pred, average='weighted')
+        print(f"Category Classifier (Naive Bayes) trained. Weighted F1-score: {f1:.4f}")
+        # print("\nClassification Report:")
+        # print(classification_report(y_test, y_pred, target_names=self.label_encoder.classes_))
+
+    def predict_category(self, features):
+        """
+        Predicts the category for a given set of features.
+        Returns the category name.
+        """
+        prediction_encoded = self.model.predict(features)
+        return self.label_encoder.inverse_transform(prediction_encoded)
+
+if __name__ == '__main__':
+    from data_loader import ReviewDataLoader
+    from text_processor import TextPreprocessor
+    from feature_extractor import FeatureExtractor
+    
+    # 1. Load and preprocess data
+    data_loader = ReviewDataLoader(num_reviews=1000, num_categories=5)
+    reviews_df = data_loader.generate_synthetic_reviews()
+    
+    preprocessor = TextPreprocessor()
+    reviews_df['processed_text'] = reviews_df['review_text'].apply(preprocessor.process_pipeline)
+    
+    # 2. Feature Extraction
+    feature_extractor = FeatureExtractor()
+    tfidf_matrix = feature_extractor.extract_tfidf(reviews_df['processed_text'])
+    
+    # 3. Category Classification
+    category_classifier = CategoryClassifier()
+    
+    X = tfidf_matrix
+    y = reviews_df['category']
+    
+    category_classifier.train_classifier(X, y)
+    
+    # Predict on a sample
+    sample_text = "This is a review about a phone camera"
+    processed_sample = preprocessor.process_pipeline(sample_text)
+    sample_features = feature_extractor.tfidf_vectorizer.transform([processed_sample])
+    
+    prediction = category_classifier.predict_category(sample_features)
+    print(f"\nPrediction for '{sample_text}': {prediction[0]}")

@@ -1,0 +1,12 @@
+nltk
+transformers
+scikit-learn
+tensorflow
+pandas
+wordcloud
+gensim
+matplotlib
+jupyter
+torch
+accelerate
+datasets
