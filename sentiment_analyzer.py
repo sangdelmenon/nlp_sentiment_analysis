@@ -3,6 +3,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import nltk
+import joblib
+import os
 
 # Download VADER lexicon
 try:
@@ -39,6 +41,17 @@ class SentimentAnalyzer:
         Predicts sentiment using the trained ML model.
         """
         return self.ml_model.predict(features)
+
+    def save_model(self, path="models/sentiment_model.joblib"):
+        """Saves the trained ML model to a file."""
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        joblib.dump(self.ml_model, path)
+        print(f"Sentiment model saved to {path}")
+
+    def load_model(self, path="models/sentiment_model.joblib"):
+        """Loads a trained ML model from a file."""
+        self.ml_model = joblib.load(path)
+        print(f"Sentiment model loaded from {path}")
 
     def fine_tune_bert_placeholder(self):
         """

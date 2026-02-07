@@ -5,6 +5,7 @@ from sentiment_analyzer import SentimentAnalyzer
 from category_classifier import CategoryClassifier
 from topic_modeler import TopicModeler
 import pandas as pd
+import joblib
 
 class SentimentPipeline:
     def __init__(self, num_reviews=1000, num_categories=5, num_topics=5):
@@ -69,7 +70,7 @@ class SentimentPipeline:
         print("\n--- Training Topic Model (LDA) ---")
         self.topic_modeler.train_lda(sentences)
         for i in range(self.num_topics):
-            print(f"Topic {i+1}: {self.topic_modeler.get_topic_words(i, num_words=5)}")
+            print(f"Topic {i+1}: {self.topic_modeler.get_topic_words(i, topn=5)}")
 
         # 5. Analyze a sample review
         print("\n[STEP 5] Analyzing a new sample review...")
@@ -110,7 +111,36 @@ class SentimentPipeline:
         for topic_num, prop in topics:
             print(f"  - Topic {topic_num+1}: {prop*100:.2f}%")
 
+    def save_models(self):
+        """Saves all trained models."""
+        print("\n[STEP 6] Saving all models...")
+        self.sentiment_analyzer.save_model()
+        self.category_classifier.save_model()
+        self.topic_modeler.save_model()
+        # Also save the tfidf vectorizer
+        joblib.dump(self.feature_extractor.tfidf_vectorizer, "models/tfidf_vectorizer.joblib")
+        print("All models saved in the 'models' directory.")
+
+    def load_models(self):
+        """Loads all trained models."""
+        print("\nLoading all models...")
+        self.sentiment_analyzer.load_model()
+        self.category_classifier.load_model()
+        self.topic_modeler.load_model()
+        # Also load the tfidf vectorizer
+        self.feature_extractor.tfidf_vectorizer = joblib.load("models/tfidf_vectorizer.joblib")
+        print("All models loaded.")
+
 
 if __name__ == '__main__':
     pipeline = SentimentPipeline(num_reviews=2000, num_categories=4, num_topics=4)
     pipeline.run_complete_pipeline()
+    pipeline.save_models()
+
+    # Example of loading models and predicting
+    print("\n" + "="*30)
+    print("Example of loading models and predicting on a new review")
+    print("="*30)
+    new_pipeline = SentimentPipeline()
+    new_pipeline.load_models()
+    new_pipeline.analyze_review("This is a fantastic product, I'm so happy with it!")
